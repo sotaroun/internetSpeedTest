@@ -1,0 +1,3 @@
+([('speedTest_GUI',
+   '/Users/user/Documents/VScode/internetSpeedTest/dist/speedTest_GUI',
+   'EXECUTABLE')],)

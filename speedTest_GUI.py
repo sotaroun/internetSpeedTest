@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, 
     QProgressBar, QTextEdit, QSizePolicy
 )
-from PyQt6.QtCore import pyqtSignal, QObject, Qt
+from PyQt6.QtCore import pyqtSignal, QObject, Qt, QSize
 from PyQt6.QtGui import QMovie, QTextCursor
 import speedtest
 from ping3 import ping
@@ -158,7 +158,7 @@ class TestThread(threading.Thread):
 class SpeedTestApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ゲーム向け通信品質測定（スピナー自動リサイズ版）")
+        self.setWindowTitle("ゲーム向け通信品質測定（スピナー縦横比維持）")
         self.setGeometry(100,100,650,300)
         self.setMinimumSize(600,300)
 
@@ -200,11 +200,17 @@ class SpeedTestApp(QWidget):
         self.btn_test.clicked.connect(self.start_test)
         self.text_area.resizeEvent = self.on_text_resize
 
-    # スピナー自動リサイズ対応
+    # スピナー縦横比維持リサイズ対応
     def on_text_resize(self, event):
         self.spinner_label.setGeometry(0,0,self.text_area.width(),self.text_area.height())
         if self.spinner_movie:
-            self.spinner_movie.setScaledSize(self.spinner_label.size())
+            pixmap_size = self.spinner_movie.currentPixmap().size()
+            if not pixmap_size.isEmpty():
+                w_ratio = self.text_area.width() / pixmap_size.width()
+                h_ratio = self.text_area.height() / pixmap_size.height()
+                scale = min(w_ratio, h_ratio)
+                new_size = QSize(int(pixmap_size.width()*scale), int(pixmap_size.height()*scale))
+                self.spinner_movie.setScaledSize(new_size)
         QTextEdit.resizeEvent(self.text_area, event)
 
     def append_text(self,text,color="black"):
